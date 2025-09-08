@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/grid6.css">
+    <title>Whack-a-Mole Igra</title>
+</head>
+<body>
+    <div class="scoreboard" id="scoreboard">Bodovi: 0</div>
+    <div class="grid" id="gameGrid"></div>
+
+    <script>
+        const slike = [
+            { src: 'slike/zavrsni.jpg', points: 20 , sound: 'zvuk/Aplauz.mp3' },
+            { src: 'slike/projekat.jpg', points: 10, sound: 'zvuk/Aplauz.mp3'  },
+            { src: 'slike/test.png', points: 5 , sound: 'zvuk/Aplauz.mp3' },
+            { src: 'slike/bpnus1.jpg', points: 50, sound: 'zvuk/Aplauz.mp3' },
+            { src: 'slike/pad1.png', points: -30, sound: 'zvuk/ne.mp3' },
+            { src: 'slike/pad2.jpg', reset: true, sound: 'zvuk/ne.mp3' }
+        ];
+
+        const mreza = document.getElementById('gameGrid');
+        const tabelaBodova = document.getElementById('scoreboard');
+        const bonusLimit = 2; 
+        let brojBonusa = 0;  
+        let bodovi = 0;       
+        let aktivneCelije = new Set();
+        let igraNastavak = false;  
+
+        function azurirajBodove(bodoviZaDodati) {
+            if (bodoviZaDodati === 0) {
+                bodovi = 0; 
+            } else {
+                bodovi += bodoviZaDodati;
+            }
+            tabelaBodova.textContent = `Bodovi: ${bodovi}`;
+        }
+
+        function odsviraZvuk(src) {
+            const audio = new Audio(src);
+            audio.play();
+        }
+
+        function napraviMrezu() {
+            for (let i = 0; i < 36; i++) {  
+                const celija = document.createElement('div');
+                celija.classList.add('cell');
+                celija.dataset.index = i;
+                mreza.appendChild(celija);
+
+                celija.addEventListener('click', () => {
+                    if (celija.firstChild) {
+                        const slikaSrc = celija.firstChild.getAttribute('src');
+                        const slika = slike.find(s => s.src === slikaSrc);
+                        if (slika) {
+                            if (slika.sound) {
+                                odsviraZvuk(slika.sound); 
+                            }
+                            if (slika.reset) {
+                                azurirajBodove(0);
+                            } else {
+                                azurirajBodove(slika.points || 0);
+                            }
+                        }
+                        celija.innerHTML = ''; 
+                        aktivneCelije.delete(celija.dataset.index); 
+                    }
+                });
+            }
+        }
+
+        function pojaviSlikuUCeliji(celija) {
+            if (aktivneCelije.has(celija.dataset.index)) return; 
+
+            const nasumicnaSlika = slike[Math.floor(Math.random() * slike.length)];
+
+            if ((nasumicnaSlika.points === 50 || nasumicnaSlika.bonus) && brojBonusa >= bonusLimit) {
+                return;
+            }
+
+            const img = document.createElement('img');
+            img.src = nasumicnaSlika.src;
+            celija.innerHTML = ''; 
+            celija.appendChild(img);
+            aktivneCelije.add(celija.dataset.index); 
+
+            if (nasumicnaSlika.points === 50 || nasumicnaSlika.bonus) {
+                brojBonusa++;
+            }
+
+            const timeout = Math.random() * 1000 + 500; 
+            setTimeout(() => {
+                celija.innerHTML = '';
+                aktivneCelije.delete(celija.dataset.index); 
+            }, timeout);
+        }
+
+        function pokreniIgru(trajanje) {
+            const celije = document.querySelectorAll('.cell');
+            const interval = setInterval(() => {
+                const nasumicnaCelija = celije[Math.floor(Math.random() * celije.length)];
+                pojaviSlikuUCeliji(nasumicnaCelija);
+            }, 500); 
+
+            setTimeout(() => {
+                clearInterval(interval);
+                if (bodovi > 100 && !igraNastavak) {
+                    const nastaviIgru = confirm(`Tvoj rezultat je ${bodovi}! Želiš li da nastaviš igru?`);
+                    if (nastaviIgru) {
+                        igraNastavak = true; 
+                        brojBonusa = 0; 
+                        pokreniIgru(30); 
+                    } else {
+                        alert(`Igra je završena! Ukupni bodovi: ${bodovi}`);
+                    }
+                } else {
+                    alert(`Igra je završena! Ukupni bodovi: ${bodovi}`);
+                }
+            }, trajanje * 1000); 
+        }
+
+        napraviMrezu();
+        pokreniIgru(30); 
+    </script>
+</body>
+</html>

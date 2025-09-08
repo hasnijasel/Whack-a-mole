@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova igra - Whack-a-Mole</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Nova igra</h1>
+        <p class="text-center lead">Izaberite dimenzije mreže za igru:</p>
+        
+        <div class="d-flex justify-content-center mb-4">
+            <a href="grid4x4.html" class="btn btn-primary mx-2" onclick="startGame(4)">4x4</a>
+            <a href="grid5x5.html" class="btn btn-secondary mx-2" onclick="startGame(5)">5x5</a>
+            <a href="grid6x6.html" class="btn btn-info mx-2" onclick="startGame(6)">6x6</a>
+            <a href="hard.html" class="btn btn-info mx-2" onclick="startGame(7)">Hard level</a>
+        </div>
+        
+       
+         <div class="text-center mt-4 mb-4">
+            <a href="pocetna.html" class="btn btn-primary">Nazad na početnu</a>
+        </div>
+    </div>
+
+    <script>
+        function startGame(gridSize) {
+            alert(`Pokrećete igru sa mrežom ${gridSize}x${gridSize}. Sretno!`);
+        }
+    </script>
+</body>
+</html>

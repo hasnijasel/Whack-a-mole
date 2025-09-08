@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/hard.css">
+    <title>Whack-a-Mole Igra za Ispit</title>
+</head>
+<body>
+    <div class="scoreboard" id="scoreboard">Bodovi: 0</div>
+    <div class="grid" id="gameGrid"></div>
+
+    <script>
+        const slike = [
+            { src: 'slike/zavrsni.jpg', bodovi: 20 },    
+            { src: 'slike/projekat.jpg', bodovi: 10 },  
+            { src: 'slike/test.png', bodovi: 5 },        
+            { src: 'slike/bpnus1.jpg', bodovi: 50 },    
+            { src: 'slike/pad1.png', bodovi: -30 },      
+            { src: 'slike/pad2.jpg', resetuj: true },    
+            { src: 'slike/bonus2.jpg', bonus: 5 }        
+        ];
+
+        const mreza = document.getElementById('gameGrid');
+        const tablicaBodova = document.getElementById('scoreboard');
+        const ogranicenjeBona = 1; 
+        let brojBonusa = 0;  
+        let bodovi = 0;        
+        let aktivneCelije = new Set(); 
+        let bonusPrikazan = false; 
+
+        
+        function osveziBodove(brojBodova) {
+            if (brojBodova === 0) {
+                bodovi = 0; 
+            } else {
+                bodovi += brojBodova;
+            }
+            tablicaBodova.textContent = `Bodovi: ${bodovi}`;
+        }
+
+        function kreirajMrezu() {
+            for (let i = 0; i < 28; i++) { 
+                const celija = document.createElement('div');
+                celija.classList.add('cell');
+                celija.dataset.index = i;
+                mreza.appendChild(celija);
+
+                celija.addEventListener('click', () => {
+                    if (celija.firstChild) {
+                        const izvorSlike = celija.firstChild.getAttribute('src');
+                        const slika = slike.find(sl => sl.src === izvorSlike);
+                        if (slika) {
+                            if (slika.resetuj) {
+                                osveziBodove(0); 
+                            } else {
+                                osveziBodove(slika.bodovi || 0);
+                            }
+                        }
+                        celija.innerHTML = ''; 
+                        aktivneCelije.delete(celija.dataset.index); 
+                    }
+                });
+            }
+        }
+
+        function prikaziSlikuUCeliji(celija) {
+            if (aktivneCelije.has(celija.dataset.index)) return; 
+
+            const randomSlika = slike[Math.floor(Math.random() * slike.length)];
+
+            if (randomSlika.bodovi === 50 && brojBonusa >= ogranicenjeBona) {
+                return; 
+            }
+
+            const img = document.createElement('img');
+            img.src = randomSlika.src;
+            celija.innerHTML = ''; 
+            celija.appendChild(img);
+            aktivneCelije.add(celija.dataset.index); 
+
+            if (randomSlika.bodovi === 50 || randomSlika.bonus) {
+                brojBonusa++;
+            }
+
+            const timeout = Math.random() * 300 + 200; 
+            setTimeout(() => {
+                celija.innerHTML = '';
+                aktivneCelije.delete(celija.dataset.index); 
+            }, timeout);
+        }
+
+        function zapocniIgru(trajanje) {
+            const celije = document.querySelectorAll('.cell');
+            const interval = setInterval(() => {
+                const randomCelija = celije[Math.floor(Math.random() * celije.length)];
+                prikaziSlikuUCeliji(randomCelija);
+            }, 300); 
+
+            setTimeout(() => {
+                clearInterval(interval);
+                alert(`Igra je završena! Ukupni bodovi: ${bodovi}`);
+            }, trajanje * 1000); 
+        }
+
+        kreirajMrezu();
+        zapocniIgru(20); 
+    </script>
+</body>
+</html>
